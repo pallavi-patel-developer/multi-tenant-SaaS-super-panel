@@ -1,68 +1,122 @@
+"use client";
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   FiHome,
-  FiFileText,
+  FiUsers,
+  FiPackage,
+  FiCreditCard,
+  FiGrid,
   FiBarChart2,
-  FiMessageSquare,
-  FiPlayCircle,
+  FiShield,
   FiBell,
+  FiActivity,
+  FiSettings,
   FiLogOut,
-  FiSettings
+  FiMenu
 } from 'react-icons/fi';
 import clsx from 'clsx';
 
-const Sidebar = () => {
+const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+  const pathname = usePathname();
+
   const navItems = [
-    { icon: FiHome, href: '/', label: 'Dashboard', active: true },
-    { icon: FiFileText, href: '/documents', label: 'Documents' },
-    { icon: FiBarChart2, href: '/stats', label: 'Statistics' },
-    { icon: FiMessageSquare, href: '/messages', label: 'Messages' },
-    { icon: FiPlayCircle, href: '/videos', label: 'Videos' },
+    { icon: FiHome, href: '/dashboard', label: 'Dashboard' },
+    { icon: FiUsers, href: '/tenants', label: 'Tenants' },
+    { icon: FiPackage, href: '/plans', label: 'Plans' },
+    { icon: FiCreditCard, href: '/payments', label: 'Payments' },
+    { icon: FiGrid, href: '/categories', label: 'Categories' },
+    { icon: FiBarChart2, href: '/analytics', label: 'Analytics' },
+    { icon: FiShield, href: '/roles', label: 'Roles' },
+    { icon: FiBell, href: '/notifications', label: 'Notifications' },
+    { icon: FiActivity, href: '/audit-logs', label: 'Audit Logs' },
+    { icon: FiSettings, href: '/settings', label: 'Settings' },
   ];
 
   return (
-    <div className="group flex h-full w-20 flex-col items-center justify-between bg-[#5B4DBC] py-8 text-white transition-all duration-300 ease-in-out hover:w-64 hover:items-start hover:px-6">
-      {/* Top Section */}
-      <div className="flex w-full flex-col gap-8">
-        {/* Logo / Bell Icon */}
-        <div className="mb-4 flex items-center gap-4 px-5">
-          <button className="flex h-10 w-10 min-w-[40px] items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors">
-            <FiBell size={20} />
-          </button>
-          <span className="whitespace-nowrap text-xl font-bold opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            SuperPanel
-          </span>
+    <div
+      className={clsx(
+        "flex h-screen flex-col bg-[#1e293b] text-white transition-all duration-300 ease-in-out shadow-xl fixed left-0 top-0 z-50",
+        isCollapsed ? "w-20" : "w-64"
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10 h-16">
+        <div className={clsx("flex items-center gap-3 overflow-hidden", isCollapsed && "justify-center w-full")}>
+          <div className="h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center shrink-0">
+            <span className="font-bold text-lg">S</span>
+          </div>
+          {!isCollapsed && <span className="font-bold text-lg whitespace-nowrap">SuperAdmin</span>}
         </div>
-
-        {/* Navigation Items */}
-        <nav className="flex w-full flex-col gap-4">
-          {navItems.map((item, index) => (
-            <Link
-              key={index}
-              href={item.href}
-              className={clsx(
-                "flex items-center gap-4 rounded-xl p-3 px-7 transition-all duration-200 overflow-hidden whitespace-nowrap",
-                item.active
-                  ? "bg-white text-[#5B4DBC] shadow-lg"
-                  : "text-white/70 hover:bg-white/10 hover:text-white"
-              )}
-            >
-              <item.icon size={24} className="min-w-[24px]" />
-              <span className="opacity-0 transition-opacity delay-100 duration-200 group-hover:opacity-100">
-                {item.label}
-              </span>
-            </Link>
-          ))}
-        </nav>
+        {!isCollapsed && (
+          <button
+            onClick={toggleSidebar}
+            className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+          >
+            <FiMenu size={20} />
+          </button>
+        )}
       </div>
 
-      {/* Bottom Section */}
-      <div className="flex w-full flex-col gap-6 group-hover:px-0">
-        <button className="flex w-full items-center gap-4 rounded-xl p-3 px-7 text-white/70 transition-all duration-200 hover:bg-white/10 hover:text-white overflow-hidden whitespace-nowrap">
-          <FiLogOut size={24} className="min-w-[24px] rotate-180" />
-          <span className="opacity-0 transition-opacity delay-100 duration-200 group-hover:opacity-100">
-            Logout
-          </span>
+      {/* Collapse Button (Only visible when collapsed) */}
+      {isCollapsed && (
+        <div className="flex justify-center p-2 border-b border-white/10">
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+          >
+            <FiMenu size={20} />
+          </button>
+        </div>
+      )}
+
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href));
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              title={isCollapsed ? item.label : ""}
+              className={clsx(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 group relative",
+                isActive
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "text-gray-400 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <item.icon
+                size={22}
+                className={clsx("shrink-0", isActive ? "text-white" : "group-hover:text-white")}
+              />
+              {!isCollapsed && (
+                <span className="whitespace-nowrap text-sm font-medium">
+                  {item.label}
+                </span>
+              )}
+
+              {/* Tooltip for collapsed state */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                  {item.label}
+                </div>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-white/10">
+        <button className={clsx(
+          "flex w-full items-center gap-3 rounded-lg p-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors",
+          isCollapsed ? "justify-center" : ""
+        )}>
+          <FiLogOut size={22} className="shrink-0" />
+          {!isCollapsed && <span className="whitespace-nowrap text-sm font-medium">Logout</span>}
         </button>
       </div>
     </div>
