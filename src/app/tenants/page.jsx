@@ -14,35 +14,70 @@ const dummyTenants = [
 ];
 
 export default function TenantsPage() {
-  const [tenants, setTenants] = useState(dummyTenants);
+  const [tenants, setTenants] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     businessName: '', businessType: '', ownerName: '', ownerEmail: '', ownerPhone: '',
     gst: '', pan: '', address: '', country: '', state: '', city: '', pincode: '',
-    timezone: '', currency: '', subdomain: '', customDomain: '',
+    timezone: '', currency: '', subdomain: '', customDomain: '', mongoUri: '',
     apiRateLimit: '', maxUsers: '', maxProducts: '',
     plan: '', billingCycle: '', trialEnd: '', expiry: '', paymentStatus: '', status: 'Active'
   });
+
+  const fetchTenants = async () => {
+    try {
+      const res = await fetch(`${process.env.Backend_url}/api/v1/tenants`);
+      const data = await res.json();
+      setTenants(data);
+    } catch (error) {
+      console.error('Failed to fetch tenants:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchTenants();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newTenant = {
-      id: `TNT00${tenants.length + 1}`,
-      name: formData.businessName,
-      owner: formData.ownerEmail,
+    const payload = {
+      id: `TNT${Date.now()}`,
+      businessName: formData.businessName,
+      subdomain: formData.subdomain,
+      mongoUri: formData.mongoUri || null,
+      ownerEmail: formData.ownerEmail,
       plan: formData.plan || 'Basic',
       status: formData.status,
       expiry: formData.expiry || '2025-01-01',
       created: new Date().toISOString().split('T')[0]
     };
-    setTenants([...tenants, newTenant]);
-    setIsModalOpen(false);
-    // Reset form...
+
+    try {
+      const res = await fetch(`${process.env.Backend_url}/api/v1/tenants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': 'SuperAdmin_001' // Simulating logged in user
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        fetchTenants();
+        setIsModalOpen(false);
+        // Add reset logic if needed
+      }
+    } catch (error) {
+      console.error('Failed to create tenant:', error);
+    }
   };
 
   const columns = [
@@ -96,7 +131,9 @@ export default function TenantsPage() {
             <h4 className="mb-4 text-lg font-medium text-gray-900 dark:text-white border-b pb-2">1. Business Information</h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <FormInput label="Business Name" name="businessName" required onChange={handleInputChange} />
-              <FormSelect label="Business Type" name="businessType" options={[{ label: 'Retail', value: 'retail' }, { label: 'Service', value: 'service' }]} onChange={handleInputChange} />
+              <FormSelect label="Business Type" name="businessType" options={[{ label: 'Retail', value: 'retail' }, { label: 'Restaurant', value: 'Restaurant' }, { label: 'Hotel', value: 'Hotel' }, { label: 'Pharmacy', value: 'Pharmacy' }, {
+                label: 'Manufacturing', value: 'Manufacturing'
+              }]} onChange={handleInputChange} />
               <FormInput label="Owner Name" name="ownerName" required onChange={handleInputChange} />
               <FormInput label="Owner Email" name="ownerEmail" type="email" required onChange={handleInputChange} />
               <FormInput label="Owner Phone" name="ownerPhone" type="tel" onChange={handleInputChange} />
@@ -114,15 +151,14 @@ export default function TenantsPage() {
             </div>
           </div>
 
+
+
           {/* Technical Info */}
           <div>
             <h4 className="mb-4 text-lg font-medium text-gray-900 dark:text-white border-b pb-2">2. Technical Configuration</h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <FormInput label="Subdomain" name="subdomain" placeholder="example.app.com" required onChange={handleInputChange} />
-              <FormInput label="Custom Domain" name="customDomain" placeholder="www.example.com" onChange={handleInputChange} />
-              <FormInput label="API Rate Limit" name="apiRateLimit" type="number" onChange={handleInputChange} />
-              <FormInput label="Max Users" name="maxUsers" type="number" onChange={handleInputChange} />
-              <FormInput label="Max Products" name="maxProducts" type="number" onChange={handleInputChange} />
+              <FormInput label="Custom MongoDB URI (Optional)" name="mongoUri" placeholder="mongodb+srv://..." onChange={handleInputChange} />
             </div>
           </div>
 

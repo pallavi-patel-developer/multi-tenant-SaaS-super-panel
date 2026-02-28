@@ -75,11 +75,11 @@ export default function PlansPage() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Plan">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FormInput label="Plan Name" name="name" required onChange={handleInputChange} />
-          <FormInput label="Plan Code" name="code" placeholder="e.g., BASIC_MONTHLY" required onChange={handleInputChange} />
+          <FormInput label="Plan Name" name="planName" required onChange={handleInputChange} />
+          <FormInput label="Plan Code" name="planCode" placeholder="e.g., BASIC_MONTHLY" required onChange={handleInputChange} />
           <div className="grid grid-cols-2 gap-4">
-            <FormInput label="Price" name="price" type="number" required onChange={handleInputChange} />
-            <FormSelect label="Billing Cycle" name="cycle" options={[{ label: 'Monthly', value: 'Monthly' }, { label: 'Yearly', value: 'Yearly' }]} onChange={handleInputChange} />
+            <FormInput label="Price" name="planPrice" type="number" required onChange={handleInputChange} />
+            <FormSelect label="Billing Cycle" name="billingCycle" options={[{ label: 'Monthly', value: 'monthly' }, { label: 'Yearly', value: 'yearly' }]} onChange={handleInputChange} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <FormInput label="Trial Days" name="trialDays" type="number" onChange={handleInputChange} />
