@@ -1,8 +1,7 @@
 @import "tailwindcss";
-
-
+@custom-variant dark (&:where(.dark, .dark *));
 
 body {
   /* Ensure font-sans is applied if configured, otherwise default sans */
   font-family: Arial, Helvetica, sans-serif;
-}
+}

@@ -59,8 +59,8 @@ export default function Dashboard() {
         {/* Revenue Chart */}
         <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-800">
           <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">Revenue Overview</h3>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -84,8 +84,8 @@ export default function Dashboard() {
         {/* Tenant Growth Chart */}
         <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-800">
           <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">Tenant Growth</h3>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />

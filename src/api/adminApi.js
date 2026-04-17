@@ -13,7 +13,6 @@ export const loginAdmin = async ({ email, password }) => {
     throw new Error(json.message || "Login failed");
   }
 
-  // Token localStorage mein save karo
   if (typeof window !== "undefined") {
     localStorage.setItem("token", json.token);
     const userData = json.admin || json.role;
