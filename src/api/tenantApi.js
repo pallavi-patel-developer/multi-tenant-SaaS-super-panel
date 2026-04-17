@@ -5,7 +5,7 @@ export const tenantKeys = {
   byId: (id) => ["tenants", id],
 };
 
-const getAuthHeaders = () => {
+export const getAuthHeaders = () => {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   return {
     "Content-Type": "application/json",
