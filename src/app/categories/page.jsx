@@ -26,7 +26,7 @@ const FEATURES_GROUPS = {
   ],
   "Reports": [
     { id: 'f_reports_analytics', label: 'Sales Report', desc: 'Periodic sales analytics, financial revenue, taxation records' },
- 
+
   ],
   "Inventory": [
     { id: 'f_stock_quantity', label: 'Stock Quantity', desc: 'Track available inventory amounts, low stock alert, notification for reordering' },
@@ -70,11 +70,11 @@ export default function BusinessCategoriesPage() {
     setPermissions(prev => {
       const currentList = prev[activeType] || [];
       const hasFeature = currentList.includes(featureId);
-      
+
       return {
         ...prev,
-        [activeType]: hasFeature 
-          ? currentList.filter(id => id !== featureId) 
+        [activeType]: hasFeature
+          ? currentList.filter(id => id !== featureId)
           : [...currentList, featureId]
       };
     });
@@ -98,7 +98,7 @@ export default function BusinessCategoriesPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        
+
         {/* Left Side: Business Types List */}
         <div className="w-full lg:w-72 shrink-0">
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">
@@ -109,12 +109,12 @@ export default function BusinessCategoriesPage() {
                   key={type.id}
                   onClick={() => setActiveType(type.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium
-                    ${activeType === type.id 
-                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50' 
+                    ${activeType === type.id
+                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50'
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent'
                     }`}
                 >
-                  <type.icon size={18} className={activeType === type.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'} /> 
+                  <type.icon size={18} className={activeType === type.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'} />
                   {type.label}
                 </button>
               ))}
@@ -125,7 +125,7 @@ export default function BusinessCategoriesPage() {
         {/* Right Side: Feature Flags Configuration */}
         <div className="flex-1 min-w-0">
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
-            
+
             <div className="p-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function BusinessCategoriesPage() {
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">Any Tenant creating an account under this category will get these features enabled by default.</p>
               </div>
-              <button 
+              <button
                 onClick={handleSave}
                 disabled={isSaving}
                 className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm active:scale-95 disabled:opacity-70"
@@ -159,20 +159,20 @@ export default function BusinessCategoriesPage() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {features.map((feature) => (
-                        <div 
-                          key={feature.id}
-                          className="relative flex items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm"
-                        >
-                          <div>
-                            <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
-                              {feature.label}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
-                              {feature.desc}
-                            </p>
-                          </div>
+                      <div
+                        key={feature.id}
+                        className="relative flex items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm"
+                      >
+                        <div>
+                          <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
+                            {feature.label}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
+                            {feature.desc}
+                          </p>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
