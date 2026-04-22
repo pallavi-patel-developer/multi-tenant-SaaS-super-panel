@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { FiSave, FiMonitor, FiShoppingBag, FiCoffee, FiHome, FiTool, FiActivity, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 
-// Constants for Business Types
 const BUSINESS_TYPES = [
   { id: 'restaurant', label: 'Restaurant', icon: FiCoffee },
   { id: 'hotel', label: 'Hotel', icon: FiHome },
