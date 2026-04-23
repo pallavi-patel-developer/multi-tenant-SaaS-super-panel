@@ -84,17 +84,23 @@ export default function BusinessCategoriesPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await fetch(`/api/categories/${activeType}`, {
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch(`/api/v1/categories/${activeType}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           label: BUSINESS_TYPES.find(t => t.id === activeType)?.label,
           features: permissions[activeType]
         })
       });
-      return res.status(200).json({ message: "Featur created sucessfully" });
+
+      if (!response.ok) throw new Error('Failed to save');
+      alert('Feature config saved successfully!');
     } catch (err) {
-      return res.status(500).json({ message: "INTERNAL SERVER ERROR" })
+      alert('Error saving config: ' + err.message);
     } finally {
       setIsSaving(false);
     }
