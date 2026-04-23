@@ -42,15 +42,14 @@ const FEATURES_GROUPS = {
 };
 
 const CORE_FEATURES = [
-  'f_business_name', 'f_gst_tax', 'f_address', 'f_contact_details', 'f_currency', 'f_timezone',
-  'f_staff', 'f_roles', 'f_permissions',
-  'f_name', 'f_price', 'f_tax', 'f_status',
-  'f_invoice_number', 'f_payment_method', 'f_payment_status',
-  'f_sales_report', 'f_revenue_report', 'f_tax_report',
-  'f_stock_quantity', 'f_low_stock_alert'
+  'f_business_name',
+  'f_user_management',
+  'f_product_management',
+  'f_billing_management',
+  'f_reports_analytics',
+  'f_stock_quantity'
 ];
 
-// Mock Default State (Mapping which feature is enabled for which business)
 const INITIAL_PERMISSIONS = {
   restaurant: [...CORE_FEATURES],
   hotel: [...CORE_FEATURES, 'f_room_management'],
@@ -85,7 +84,7 @@ export default function BusinessCategoriesPage() {
     setIsSaving(true);
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch(`/api/v1/categories/${activeType}`, {
+      const response = await fetch(`http://localhost:5000/api/v1/categories/${activeType}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -178,8 +177,20 @@ export default function BusinessCategoriesPage() {
                     {features.map((feature) => (
                       <div
                         key={feature.id}
-                        className="relative flex items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm"
+                        onClick={() => handleToggle(feature.id)}
+                        className={`relative flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${currentFeatures.includes(feature.id)
+                            ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500/50 dark:bg-indigo-900/20 shadow-md'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700'
+                          }`}
                       >
+                        <div className="mt-1 shrink-0">
+                          <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${currentFeatures.includes(feature.id)
+                              ? 'bg-indigo-600 border-indigo-600'
+                              : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                            }`}>
+                            {currentFeatures.includes(feature.id) && <FiCheck className="text-white text-xs" />}
+                          </div>
+                        </div>
                         <div>
                           <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
                             {feature.label}
