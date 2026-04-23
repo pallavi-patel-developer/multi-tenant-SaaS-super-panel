@@ -81,6 +81,7 @@ export const createTenant = async (formData) => {
       trialEndDate: formData.trialEnd || null,
     },
     tenantStatus: formData.status.toLowerCase(),
+    feature_flags: formData.features,
   };
 
   try {
@@ -135,6 +136,7 @@ export const updateTenant = async (id, formData) => {
       trialEndDate: formData.trialEnd || null,
     },
     tenantStatus: formData.status.toLowerCase(),
+    feature_flags: formData.features,
   };
   try {
     const response = await fetch(`${API_BASE_URL}/tenants/${id}`, {

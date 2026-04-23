@@ -6,9 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchTenantById, tenantKeys } from "../../../../api/tenantApi";
 import { FiArrowLeft, FiEdit2 } from "react-icons/fi";
 
-// ═══════════════════════════════════════════════════════════════
-// InfoItem — Small reusable component for read-only display
-// ═══════════════════════════════════════════════════════════════
 function InfoItem({ label, value }) {
   return (
     <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
@@ -18,9 +15,6 @@ function InfoItem({ label, value }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// View Tenant Page
-// ═══════════════════════════════════════════════════════════════
 export default function ViewTenantPage() {
   const params = useParams();
   const router = useRouter();
@@ -32,7 +26,6 @@ export default function ViewTenantPage() {
     enabled: !!tenantId,
   });
 
-  // ── Loading ───────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -41,7 +34,6 @@ export default function ViewTenantPage() {
     );
   }
 
-  // ── Error ─────────────────────────────────────────────────
   if (isError) {
     return (
       <div className="mx-auto mt-20 max-w-md rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/20">
@@ -81,14 +73,14 @@ export default function ViewTenantPage() {
       {/* Status Badge */}
       <div className="flex items-center gap-3">
         <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${tenant.tenantStatus === "active"
-            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
           }`}>
           {tenant.tenantStatus?.charAt(0).toUpperCase() + tenant.tenantStatus?.slice(1)}
         </span>
         <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${tenant.subscription?.plan === "Enterprise"
-            ? "bg-purple-100 text-purple-800"
-            : "bg-blue-100 text-blue-800"
+          ? "bg-purple-100 text-purple-800"
+          : "bg-blue-100 text-blue-800"
           }`}>
           {tenant.subscription?.plan || "Basic"} Plan
         </span>

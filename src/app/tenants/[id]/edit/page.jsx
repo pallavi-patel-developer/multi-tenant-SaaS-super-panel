@@ -6,9 +6,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchTenantById, updateTenant, tenantKeys } from "../../../../api/tenantApi";
 import FormInput from "../../../../components/ui/FormInput";
 import FormSelect from "../../../../components/ui/FormSelect";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { FiArrowLeft, FiSave, FiCheck } from "react-icons/fi";
+import { FEATURES_GROUPS } from "../../../../constants/features";
 
-// ─── Select options ───────────────────────────────────────────
 const BUSINESS_TYPES = [
   { label: "Retail", value: "retail" },
   { label: "Restaurant", value: "Restaurant" },
@@ -42,7 +42,6 @@ const TENANT_STATUSES = [
   { label: "Suspended", value: "Suspended" },
 ];
 
-// ─── Helper: Convert nested DB tenant → flat form ────────────
 const tenantToFormData = (tenant) => ({
   businessName: tenant.business?.name || "",
   businessType: tenant.business?.type || "retail",
@@ -70,11 +69,10 @@ const tenantToFormData = (tenant) => ({
     : "",
   paymentStatus: tenant.subscription?.paymentStatus?.toLowerCase() || "pending",
   status: tenant.tenantStatus === "active" ? "Active" : "Suspended",
+  features: tenant.feature_flags || [],
 });
 
-// ═══════════════════════════════════════════════════════════════
-// Edit Tenant Page
-// ═══════════════════════════════════════════════════════════════
+
 export default function EditTenantPage() {
   const params = useParams();
   const router = useRouter();
@@ -89,7 +87,6 @@ export default function EditTenantPage() {
     enabled: !!tenantId,
   });
 
-  // ── Update Mutation ───────────────────────────────────────
   const updateMutation = useMutation({
     mutationFn: (payload) => updateTenant(tenantId, payload),
     onSuccess: () => {
@@ -99,7 +96,6 @@ export default function EditTenantPage() {
     },
   });
 
-  // Pre-fill form when tenant data loads
   useEffect(() => {
     if (tenant) {
       setFormData(tenantToFormData(tenant));
@@ -111,13 +107,23 @@ export default function EditTenantPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFeatureToggle = (featureId) => {
+    setFormData((prev) => {
+      const hasFeature = prev.features.includes(featureId);
+      return {
+        ...prev,
+        features: hasFeature
+          ? prev.features.filter((id) => id !== featureId)
+          : [...prev.features, featureId],
+      };
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // updateTenant internally calls formDataToPayload()
     updateMutation.mutate(formData);
   };
 
-  // ── Loading ───────────────────────────────────────────────
   if (isLoading || !formData) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -126,7 +132,6 @@ export default function EditTenantPage() {
     );
   }
 
-  // ── Error ─────────────────────────────────────────────────
   if (isError) {
     return (
       <div className="mx-auto mt-20 max-w-md rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/20">
@@ -194,10 +199,54 @@ export default function EditTenantPage() {
             </div>
           </div>
 
-          {/* 3. Subscription & Billing */}
+          {/* Feature Configuration */}
           <div>
             <h4 className="mb-4 text-lg font-medium text-gray-900 dark:text-white border-b pb-2">
-              3. Subscription &amp; Billing
+              3. Feature Modules
+            </h4>
+            <div className="flex flex-col gap-4">
+              {Object.entries(FEATURES_GROUPS).filter(([groupName]) => {
+                if (groupName === 'Room Management') return formData.businessType === 'Hotel' || formData.businessType === 'hotel';
+                if (groupName === 'Manufacturing & Vendor') return formData.businessType === 'Manufacturing' || formData.businessType === 'manufacturing';
+                if (groupName === 'Pharmacy & Clinic') return formData.businessType === 'Pharmacy' || formData.businessType === 'pharmacy';
+                if (groupName === 'Inventory') return formData.businessType === 'Manufacturing' || formData.businessType === 'manufacturing' || formData.businessType === 'Pharmacy' || formData.businessType === 'pharmacy';
+                return true;
+              }).map(([groupName, features]) => (
+                <div key={groupName} className="space-y-1.5">
+                  <h5 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{groupName}</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {features.map((feature) => {
+                      const isEnabled = formData.features.includes(feature.id);
+                      return (
+                        <div
+                          key={feature.id}
+                          onClick={() => handleFeatureToggle(feature.id)}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-all duration-200 select-none
+                            ${isEnabled
+                              ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-500'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                            }`}
+                        >
+                          <div className={`shrink-0 w-3.5 h-3.5 rounded-sm flex items-center justify-center transition-colors
+                            ${isEnabled ? 'bg-indigo-600 text-white' : 'bg-transparent border border-gray-300 dark:border-gray-600'}
+                          `}>
+                            {isEnabled && <FiCheck size={10} strokeWidth={4} />}
+                          </div>
+                          <span className="text-xs font-semibold">{feature.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-4 italic">* Click on any module to toggle it ON/OFF for this tenant.</p>
+          </div>
+
+          {/* 4. Subscription & Billing */}
+          <div>
+            <h4 className="mb-4 text-lg font-medium text-gray-900 dark:text-white border-b pb-2">
+              4. Subscription &amp; Billing
             </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <FormSelect label="Plan" name="plan" value={formData.plan} options={PLANS} required onChange={handleInputChange} />
