@@ -81,13 +81,25 @@ export default function BusinessCategoriesPage() {
 
   const currentFeatures = permissions[activeType] || [];
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      await fetch(`/api/categories/${activeType}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          label: BUSINESS_TYPES.find(t => t.id === activeType)?.label,
+          features: permissions[activeType]
+        })
+      });
+      return res.status(200).json({ message: "Featur created sucessfully" });
+    } catch (err) {
+      return res.status(500).json({ message: "INTERNAL SERVER ERROR" })
+    } finally {
       setIsSaving(false);
-      alert('Feature mapping saved successfully!');
-    }, 800);
+    }
   };
+
 
   return (
     <div className="space-y-6">
