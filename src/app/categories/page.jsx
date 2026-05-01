@@ -145,7 +145,7 @@ export default function BusinessCategoriesPage() {
             <div className="p-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  Configure Features for "{BUSINESS_TYPES.find(t => t.id === activeType)?.label}"
+                  Configure Features for &quot;{BUSINESS_TYPES.find(t => t.id === activeType)?.label}&quot;
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">Any Tenant creating an account under this category will get these features enabled by default.</p>
               </div>
