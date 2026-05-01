@@ -138,7 +138,6 @@ export default function BusinessCategoriesPage() {
           </div>
         </div>
 
-        {/* Right Side: Feature Flags Configuration */}
         <div className="flex-1 min-w-0">
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
 
@@ -179,14 +178,14 @@ export default function BusinessCategoriesPage() {
                         key={feature.id}
                         onClick={() => handleToggle(feature.id)}
                         className={`relative flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${currentFeatures.includes(feature.id)
-                            ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500/50 dark:bg-indigo-900/20 shadow-md'
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700'
+                          ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500/50 dark:bg-indigo-900/20 shadow-md'
+                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700'
                           }`}
                       >
                         <div className="mt-1 shrink-0">
                           <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${currentFeatures.includes(feature.id)
-                              ? 'bg-indigo-600 border-indigo-600'
-                              : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                            ? 'bg-indigo-600 border-indigo-600'
+                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                             }`}>
                             {currentFeatures.includes(feature.id) && <FiCheck className="text-white text-xs" />}
                           </div>
