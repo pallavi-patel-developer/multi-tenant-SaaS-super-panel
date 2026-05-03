@@ -62,12 +62,7 @@ export default function ViewTenantPage() {
             <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.tenantId}</p>
           </div>
         </div>
-        <button
-          onClick={() => router.push(`/tenants/${tenantId}/edit`)}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition"
-        >
-          <FiEdit2 size={16} /> Edit Tenant
-        </button>
+
       </div>
 
       {/* Status Badge */}

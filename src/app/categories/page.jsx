@@ -63,47 +63,7 @@ export default function BusinessCategoriesPage() {
   const [permissions, setPermissions] = useState(INITIAL_PERMISSIONS);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Toggle Checkbox Logic
-  const handleToggle = (featureId) => {
-    setPermissions(prev => {
-      const currentList = prev[activeType] || [];
-      const hasFeature = currentList.includes(featureId);
-
-      return {
-        ...prev,
-        [activeType]: hasFeature
-          ? currentList.filter(id => id !== featureId)
-          : [...currentList, featureId]
-      };
-    });
-  };
-
   const currentFeatures = permissions[activeType] || [];
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch(`http://localhost:5000/api/v1/categories/${activeType}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          label: BUSINESS_TYPES.find(t => t.id === activeType)?.label,
-          features: permissions[activeType]
-        })
-      });
-
-      if (!response.ok) throw new Error('Failed to save');
-      alert('Feature config saved successfully!');
-    } catch (err) {
-      alert('Error saving config: ' + err.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
 
   return (
@@ -144,20 +104,10 @@ export default function BusinessCategoriesPage() {
             <div className="p-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  Configure Features for &quot;{BUSINESS_TYPES.find(t => t.id === activeType)?.label}&quot;
+                  Features for &quot;{BUSINESS_TYPES.find(t => t.id === activeType)?.label}&quot;
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">Any Tenant creating an account under this category will get these features enabled by default.</p>
               </div>
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm active:scale-95 disabled:opacity-70"
-              >
-                {isSaving ? (
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : <FiSave />}
-                {isSaving ? 'Saving...' : 'Save Config'}
-              </button>
             </div>
 
             <div className="p-6 space-y-8 animate-fade-in">
@@ -176,20 +126,11 @@ export default function BusinessCategoriesPage() {
                     {features.map((feature) => (
                       <div
                         key={feature.id}
-                        onClick={() => handleToggle(feature.id)}
-                        className={`relative flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${currentFeatures.includes(feature.id)
+                        className={`relative flex items-start gap-3 p-4 rounded-xl border transition-all ${currentFeatures.includes(feature.id)
                           ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500/50 dark:bg-indigo-900/20 shadow-md'
-                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700'
+                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm'
                           }`}
                       >
-                        <div className="mt-1 shrink-0">
-                          <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${currentFeatures.includes(feature.id)
-                            ? 'bg-indigo-600 border-indigo-600'
-                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                            }`}>
-                            {currentFeatures.includes(feature.id) && <FiCheck className="text-white text-xs" />}
-                          </div>
-                        </div>
                         <div>
                           <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
                             {feature.label}

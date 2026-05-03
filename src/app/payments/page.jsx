@@ -5,6 +5,7 @@ import FormInput from '../../components/ui/FormInput';
 import FormSelect from '../../components/ui/FormSelect';
 import { FiCreditCard, FiMail, FiUser, FiClock, FiShield } from 'react-icons/fi';
 import { createSuperPayment, getSuperPayments, paymentsKeys } from '../../api/superPaymentApi'; 
+import { useAuth } from '../../context/AuthContext'; 
 
 const GATEWAY_COLORS = {
   Razorpay: 'bg-blue-100 text-blue-700',
@@ -23,6 +24,8 @@ const INITIAL_FORM = {
 
 export default function PaymentGatewaysPage() {
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuth();
+  const canCreate = hasPermission('Payments', 'Configure');
   const [formData, setFormData] = useState(INITIAL_FORM);
 
   const { data: payments = [], isLoading, isError } = useQuery({
@@ -178,8 +181,12 @@ export default function PaymentGatewaysPage() {
 
               <button
                 type="submit"
-                disabled={createMutation.isPending}
-                className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:opacity-60"
+                disabled={!canCreate || createMutation.isPending}
+                title={!canCreate ? "You do not have permission to add configurations" : ""}
+                className={`w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white transition focus:outline-none focus:ring-4 focus:ring-indigo-300
+                  ${canCreate 
+                    ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer disabled:opacity-60' 
+                    : 'bg-indigo-600 opacity-60 cursor-not-allowed'}`}
               >
                 {createMutation.isPending ? 'Saving...' : 'Save Configuration'}
               </button>

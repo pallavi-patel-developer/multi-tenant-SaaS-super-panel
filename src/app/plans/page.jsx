@@ -7,6 +7,7 @@ import FormInput from '../../components/ui/FormInput';
 import FormSelect from '../../components/ui/FormSelect';
 import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { createPlan, fetchPlans, deletePlan, planKeys } from '../../api/superPlansApi';
+import { useAuth } from '../../context/AuthContext';
 
 const INITIAL_FORM = {
   planName: "",
@@ -19,6 +20,9 @@ const INITIAL_FORM = {
 
 export default function PlansPage() {
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuth();
+  const canCreate = hasPermission('Plans', 'Create');
+  const canDelete = hasPermission('Plans', 'Delete');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM);
 
@@ -83,9 +87,9 @@ export default function PlansPage() {
   const actions = (row) => (
     <div className="flex items-center gap-2">
       <button
-        onClick={() => handleDelete(row._id)}
-        className="text-gray-500 hover:text-red-600 transition-colors"
-        title="Delete"
+        onClick={() => canDelete && handleDelete(row._id)}
+        className={`transition-colors ${canDelete ? 'text-gray-500 hover:text-red-600 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
+        title={canDelete ? "Delete" : "You do not have permission to delete plans"}
       >
         <FiTrash2 size={18} />
       </button>
@@ -98,8 +102,10 @@ export default function PlansPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Subscription Plans</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 transition"
+          onClick={() => canCreate && setIsModalOpen(true)}
+          title={!canCreate ? 'You do not have permission to create plans' : ''}
+          className={`flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white transition
+            ${canCreate ? 'hover:bg-indigo-700 cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
         >
           <FiPlus /> Create Plan
         </button>
