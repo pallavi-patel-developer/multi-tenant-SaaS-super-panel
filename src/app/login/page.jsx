@@ -89,7 +89,7 @@ export default function LoginPage() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="admin@saas.com"
+                placeholder="Email Address"
                 value={form.email}
                 onChange={handleChange}
                 style={styles.input}
@@ -112,7 +112,7 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type={showPass ? "text" : "password"}
-                placeholder="Admin@123"
+                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
                 style={styles.input}
@@ -162,7 +162,7 @@ export default function LoginPage() {
         </form>
 
         <p style={styles.footer}>
-          Super Admin Panel • Enter email and password shown in placeholder to login • THIS EMAIL IS FOR TEST PURPOSES ONLY 
+          Super Admin Panel
         </p>
       </div>
 
