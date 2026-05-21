@@ -8,7 +8,7 @@ import Modal from "../../components/ui/Modal";
 import FormInput from "../../components/ui/FormInput";
 import FormSelect from "../../components/ui/FormSelect";
 import CheckPermission from "../../components/ui/CheckPermission";
-import { FiPlus, FiEdit2, FiTrash2, FiEye, FiCheck } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiTrash2, FiEye, FiCheck, FiCopy } from "react-icons/fi";
 import { fetchTenants, createTenant, tenantKeys } from "../../api/tenantApi";
 import { fetchPlans } from "../../api/superPlansApi";
 import { FEATURES_GROUPS, INITIAL_PERMISSIONS } from "../../constants/features";
@@ -143,6 +143,14 @@ export default function TenantsPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM);
+   const [createdCredentials, setCreatedCredentials] = useState(null);
+  const [copiedField, setCopiedField] = useState("");
+
+  const handleCopy = (text, field) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(""), 2000);
+  };
 
   const {
     data: tenants = [],
@@ -163,23 +171,27 @@ export default function TenantsPage() {
     label: p.planName,
     value: p.planName,
   }));
-
   const createMutation = useMutation({
     mutationFn: createTenant,
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: tenantKeys.all });
-      setIsModalOpen(false);
-      setFormData(INITIAL_FORM);
+      setIsModalOpen(false); // main create form modal close karein
+      setFormData(INITIAL_FORM); // form reset karein
+
+      // Backend response se credentials save karein
+      if (response.credentials) {
+        setCreatedCredentials(response.credentials);
+      }
     },
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Automatically update the features checklist when businessType changes
     if (name === "businessType") {
-      setFormData((prev) => ({ 
-        ...prev, 
+      setFormData((prev) => ({
+        ...prev,
         [name]: value,
         features: INITIAL_PERMISSIONS[value] || []
       }));
@@ -193,7 +205,7 @@ export default function TenantsPage() {
       const hasFeature = prev.features.includes(featureId);
       return {
         ...prev,
-        features: hasFeature 
+        features: hasFeature
           ? prev.features.filter(id => id !== featureId)
           : [...prev.features, featureId]
       };
@@ -296,10 +308,10 @@ export default function TenantsPage() {
         title="Create New Tenant"
         size="2xl"
       >
-        <TenantForm 
-          formData={formData} 
+        <TenantForm
+          formData={formData}
           setFormData={setFormData}
-          handleInputChange={handleInputChange} 
+          handleInputChange={handleInputChange}
           handleFeatureToggle={handleFeatureToggle}
           handleSubmit={handleSubmit}
           createMutation={createMutation}
@@ -307,6 +319,91 @@ export default function TenantsPage() {
           planOptions={planOptions}
         />
       </Modal>
+
+      {/* Success Credentials Modal */}
+      {createdCredentials && (
+        <Modal
+          isOpen={!!createdCredentials}
+          onClose={() => setCreatedCredentials(null)}
+          title="🎉 Tenant Created Successfully!"
+          size="md"
+        >
+          <div className="space-y-5 p-2 text-center">
+            <div className="flex flex-col items-center justify-center">
+              <div className="h-16 w-16 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3">
+                <FiCheck size={32} strokeWidth={3} />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Credentials</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm mt-1">
+                Please copy and share these credentials with the tenant owner. 
+                <span className="text-rose-500 font-semibold block mt-1">⚠️ Security warning: They will NOT be shown again!</span>
+              </p>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl space-y-4 text-left border border-gray-200/80 dark:border-gray-800">
+              {/* Tenant ID */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Tenant ID</span>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm">
+                  <code className="flex-1 font-mono text-sm text-indigo-600 dark:text-indigo-400 font-semibold break-all select-all">
+                    {createdCredentials.tenantId}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(createdCredentials.tenantId, "tenantId")}
+                    className={`shrink-0 p-2 rounded-lg transition-all ${
+                      copiedField === "tenantId"
+                        ? "bg-emerald-500/10 text-emerald-500"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
+                    }`}
+                    title="Copy Tenant ID"
+                  >
+                    {copiedField === "tenantId" ? (
+                      <span className="text-xs font-semibold px-1">Copied!</span>
+                    ) : (
+                      <FiCopy size={16} />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Temp Password */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Temporary Password</span>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm">
+                  <code className="flex-1 font-mono text-sm text-emerald-600 dark:text-emerald-400 font-semibold break-all select-all">
+                    {createdCredentials.password}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(createdCredentials.password, "password")}
+                    className={`shrink-0 p-2 rounded-lg transition-all ${
+                      copiedField === "password"
+                        ? "bg-emerald-500/10 text-emerald-500"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
+                    }`}
+                    title="Copy Password"
+                  >
+                    {copiedField === "password" ? (
+                      <span className="text-xs font-semibold px-1">Copied!</span>
+                    ) : (
+                      <FiCopy size={16} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCreatedCredentials(null)}
+              className="w-full py-3 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl transition duration-200 active:scale-95 shadow-lg shadow-gray-900/10 dark:shadow-none"
+            >
+              Done & Close
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -332,8 +429,8 @@ function TenantForm({ formData, setFormData, handleInputChange, handleFeatureTog
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 transition-colors
-              ${activeTab === tab.id 
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' 
+              ${activeTab === tab.id
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
               }`}
           >
@@ -384,12 +481,12 @@ function TenantForm({ formData, setFormData, handleInputChange, handleFeatureTog
                     {features.map((feature) => {
                       const isEnabled = formData.features.includes(feature.id);
                       return (
-                        <div 
+                        <div
                           key={feature.id}
                           onClick={() => handleFeatureToggle(feature.id)}
                           className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-all duration-200 select-none
-                            ${isEnabled 
-                              ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-500' 
+                            ${isEnabled
+                              ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-500'
                               : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                             }`}
                         >
@@ -446,7 +543,7 @@ function TenantForm({ formData, setFormData, handleInputChange, handleFeatureTog
       {/* ── Footer actions ───────────────────────── */}
       <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
         <div>
-           {/* Previous tab button logic if we want, or left empty */}
+          {/* Previous tab button logic if we want, or left empty */}
         </div>
         <div className="flex gap-3">
           <button
