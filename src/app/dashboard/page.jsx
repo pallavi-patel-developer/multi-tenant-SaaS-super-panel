@@ -1,37 +1,61 @@
 "use client";
-import { FiUsers, FiDollarSign, FiShoppingBag, FiCheckCircle, FiActivity } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiUsers, FiDollarSign, FiShoppingBag, FiCheckCircle, FiActivity, FiRefreshCw } from 'react-icons/fi';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 
-const data = [
-  { name: 'Jan', revenue: 4000, tenants: 240 },
-  { name: 'Feb', revenue: 3000, tenants: 139 },
-  { name: 'Mar', revenue: 2000, tenants: 980 },
-  { name: 'Apr', revenue: 2780, tenants: 390 },
-  { name: 'May', revenue: 1890, tenants: 480 },
-  { name: 'Jun', revenue: 2390, tenants: 380 },
-  { name: 'Jul', revenue: 3490, tenants: 430 },
-];
-
-const cards = [
-  { title: "Total Tenants", value: "1,245", icon: FiUsers, change: "+12%", color: "bg-blue-500" },
-  { title: "Active Tenants", value: "1,100", icon: FiCheckCircle, change: "+5%", color: "bg-green-500" },
-  { title: "Monthly Revenue", value: "$45,230", icon: FiDollarSign, change: "+8%", color: "bg-indigo-500" },
-  { title: "Total Orders", value: "8,540", icon: FiShoppingBag, change: "+24%", color: "bg-purple-500" },
-  { title: "Active Subscriptions", value: "950", icon: FiActivity, change: "+3%", color: "bg-orange-500" },
-];
-
-const recentActivity = [
-  { id: 1, tenant: "Acme Corp", action: "Upgraded Plan", time: "2 hours ago", status: "Completed" },
-  { id: 2, tenant: "Globex Inc", action: "New Subscription", time: "4 hours ago", status: "Pending" },
-  { id: 3, tenant: "Soylent Corp", action: "Payment Failed", time: "5 hours ago", status: "Failed" },
-  { id: 4, tenant: "Umbrella Corp", action: "User Added", time: "8 hours ago", status: "Completed" },
-  { id: 5, tenant: "Stark Ind", action: "Plan Renewal", time: "1 day ago", status: "Completed" },
-];
-
 export default function Dashboard() {
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token'); // super admin token
+      const res = await fetch('http://localhost:5001/api/v1/admin/dashboard', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const result = await res.json();
+      if (result.success) {
+        setData(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching super admin dashboard:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  if (isLoading || !data) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <FiRefreshCw className="animate-spin text-indigo-600" size={32} />
+          <p className="text-gray-500 font-medium">Loading Super Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const cards = [
+    { title: "Total Tenants", value: data.totalTenants, icon: FiUsers, change: "+12%", color: "bg-blue-500" },
+    { title: "Active Tenants", value: data.activeTenants, icon: FiCheckCircle, change: "+5%", color: "bg-green-500" },
+    { title: "Monthly Revenue", value: data.monthlyRevenue, icon: FiDollarSign, change: "+8%", color: "bg-indigo-500" },
+    { title: "Total Orders", value: data.totalOrders, icon: FiShoppingBag, change: "+24%", color: "bg-purple-500" },
+    { title: "Active Subscriptions", value: data.activeSubscriptions, icon: FiActivity, change: "+3%", color: "bg-orange-500" },
+  ];
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Dashboard Overview</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Dashboard Overview</h1>
+        <button onClick={fetchDashboardData} className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+          <FiRefreshCw className={isLoading ? 'animate-spin' : ''} /> Refresh Data
+        </button>
+      </div>
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -48,7 +72,7 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center text-sm">
               <span className="font-medium text-green-500">{card.change}</span>
-              <span className="ml-2 text-gray-500 dark:text-gray-400">from last month</span>
+              <span className="ml-2 text-gray-500 dark:text-gray-400">vs last month</span>
             </div>
           </div>
         ))}
@@ -61,7 +85,7 @@ export default function Dashboard() {
           <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">Revenue Overview</h3>
           <div className="h-80 w-full min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-              <AreaChart data={data}>
+              <AreaChart data={data.data}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
@@ -86,7 +110,7 @@ export default function Dashboard() {
           <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">Tenant Growth</h3>
           <div className="h-80 w-full min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-              <BarChart data={data}>
+              <BarChart data={data.data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
                 <YAxis axisLine={false} tickLine={false} />
@@ -116,7 +140,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentActivity.map((item) => (
+              {data.recentActivity && data.recentActivity.map((item) => (
                 <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{item.tenant}</td>
                   <td className="px-6 py-4">{item.action}</td>
